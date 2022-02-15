@@ -3,8 +3,14 @@
 
 import { CreateAuthChallengeTriggerHandler } from 'aws-lambda';
 import { randomDigits } from 'crypto-secure-random-digit';
-import { SES } from 'aws-sdk';
+import { PublishCommand } from "@aws-sdk/client-sns";
+import { SNSClient } from "@aws-sdk/client-sns";
+// Set the AWS Region.
+const REGION = "ap-northeast-1"; //e.g. "us-east-1"
+// Create SNS service object.
+const snsClient = new SNSClient({ region: REGION });
 
+import { SES } from 'aws-sdk';
 const ses = new SES();
 
 export const handler: CreateAuthChallengeTriggerHandler = async event => {
@@ -15,7 +21,13 @@ export const handler: CreateAuthChallengeTriggerHandler = async event => {
         // This is a new auth session
         // Generate a new secret login code and mail it to the user
         secretLoginCode = randomDigits(6).join('');
-        await sendEmail(event.request.userAttributes.email, secretLoginCode);
+
+        const params = {
+          Message: secretLoginCode,
+          PhoneNumber: event.request.userAttributes.phone
+        };
+	await snsClient.send(new PublishCommand(params));
+        // await sendEmail(event.request.userAttributes.email, secretLoginCode);
 
     } else {
 

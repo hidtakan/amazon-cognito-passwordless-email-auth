@@ -40,6 +40,9 @@ export class AnswerChallengeComponent implements OnInit, OnDestroy, AfterContent
   private email_ = new BehaviorSubject('');
   public email = this.email_.asObservable();
 
+  private phone_ = new BehaviorSubject('');
+  public phone = this.phone_.asObservable();
+
   constructor(private auth: AuthService, private router: Router) { }
 
   ngOnInit() {
